@@ -12,8 +12,6 @@ The output is an Array of ComplexF32 with the dimensions stored in a .hdr file.
 
 Parameters:
     filenameBase:   path and filename of the cfl and hdr files, which can either be without extension, end on .cfl, or end on .hdr
-
-Copyright: Jakob Asslaender, NYU School of Medicine, 2021 (jakob.aslaender@nyumc.org)
 """
 function readcfl(filename)
 

@@ -1,6 +1,6 @@
 # BartIO.jl
 
-BartIO.jl is a Julia package to load (implemented) and write (to do) arrays into files compatible with the the [Berkeley Advanced Reconstruction Toolbox (BART)](https://mrirecon.github.io/bart/). 
+BartIO.jl is a Julia package to load (implemented) and write (to do) arrays from/into files compatible with the the [Berkeley Advanced Reconstruction Toolbox (BART)](https://mrirecon.github.io/bart/). 
 
 To load BART data (stored in a .cfl and a .hdr header file), simply call `readcfl(filename)`, where `filename` can be either not include a filename extension, or can include `.cfl` or `.hdr`. 
 
