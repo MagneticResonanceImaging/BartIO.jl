@@ -1,0 +1,8 @@
+# Dimensions
+64 64 1 2 1 1 1 1 1 1 1 1 1 1 1 1 
+# Command
+phantom -x 64 -k -s 2 data 
+# Files
+ >data
+# Creator
+BART v0.7.00-dirty
