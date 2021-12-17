@@ -14,7 +14,7 @@ The output is an Array of ComplexF32 with the dimensions stored in a .hdr file.
 Parameters:
     filenameBase:   path and filename of the cfl and hdr files, which can either be without extension, end on .cfl, or end on .hdr
 """
-function readcfl(filename)
+function readcfl(filename::String)
 
     if filename[end-3:end] == ".cfl"
         filenameBase = filename[1:end-4]
@@ -39,7 +39,7 @@ function readcfl(filename)
     return data
 end
 
-function readreconheader(filenameBase)
+function readreconheader(filenameBase::String)
     filename = string(filenameBase, ".hdr");
     fid = open(filename);
     

@@ -1,16 +1,16 @@
 @testset "IO" begin
     @testset "FileExist" begin
-        @test isfile("test/data/in.cfl")
-        @test isfile("test/data/in.hdr")
+        @test isfile("data/in.cfl")
+        @test isfile("data/in.hdr")
     end
 
     @testset "ReadWrite" begin
         ## Read bart files
         println(pwd())
-        im = BartIO.readcfl("test/data/in")
+        im = BartIO.readcfl("data/in")
 
         ## test writing to file
-        filename="test/res/out"
+        filename="res/out"
         BartIO.writecfl(filename,im)
 
         ## Read back that files
