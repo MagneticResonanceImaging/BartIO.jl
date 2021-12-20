@@ -54,9 +54,9 @@ function readreconheader(filenameBase::String)
 end
 
 """
-    writecfl(filename(no extension)) -> Array{ComplexF32,N} where N is defined the filename.hdr file
-    writecfl(filename.cfl) -> Array{ComplexF32,N} where N is defined the filename.hdr file
-    writecfl(filename.hdr) -> Array{ComplexF32,N} where N is defined the filename.hdr file
+    writecfl(filename(no extension),Array{ComplexF32}) 
+    writecfl(filename.cfl, Array{ComplexF32}) 
+    writecfl(filename.hdr,Array{ComplexF32}) 
 
 Write complex data to files following the convention of the Berkeley Advanced Reconstruction Toolbox (BART).
 The input is an Array of ComplexF32 with the dimensions stored in a .hdr file.
@@ -97,7 +97,6 @@ function writereconheader(filenameBase::String,dims::Array{Int})
     fid = open(filename,"w");
     write(fid,"# Dimension\n")
     a = length(dims)
-    println("Length of dims : ",length(dims))
     for i in 1:length(dims)
         write(fid,string(dims[i])*" ")
     end
