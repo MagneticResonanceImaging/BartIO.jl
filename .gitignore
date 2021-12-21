@@ -1,3 +1,5 @@
 /.DS_Store
 /.vscode
-/test/res
+*.jl.*.cov
+*.jl.cov
+*.jl.mem
