@@ -4,15 +4,17 @@ export readcfl
 export writecfl
 
 """
-    readcfl(filename(no extension)) -> Array{ComplexF32,N} where N is defined the filename.hdr file
-    readcfl(filename.cfl) -> Array{ComplexF32,N} where N is defined the filename.hdr file
-    readcfl(filename.hdr) -> Array{ComplexF32,N} where N is defined the filename.hdr file
+    readcfl(filename::String)
+
+- readcfl(filename(no extension)) -> Array{ComplexF32,N} where N is defined the filename.hdr file
+- readcfl(filename.cfl) -> Array{ComplexF32,N} where N is defined the filename.hdr file
+- readcfl(filename.hdr) -> Array{ComplexF32,N} where N is defined the filename.hdr file
 
 Reads complex data from files created by the Berkeley Advanced Reconstruction Toolbox (BART).
 The output is an Array of ComplexF32 with the dimensions stored in a .hdr file.
 
-Parameters:
-    filenameBase:   path and filename of the cfl and hdr files, which can either be without extension, end on .cfl, or end on .hdr
+## Parameters:
+- filename:   path and filename of the cfl and hdr files, which can either be without extension, end on .cfl, or end on .hdr
 """
 function readcfl(filename::String)
 
@@ -54,16 +56,19 @@ function readreconheader(filenameBase::String)
 end
 
 """
-    writecfl(filename(no extension),Array{ComplexF32}) 
-    writecfl(filename.cfl, Array{ComplexF32}) 
-    writecfl(filename.hdr,Array{ComplexF32}) 
+
+    writecfl(filename::String,dataCfl::Array{ComplexF32})
+
+- writecfl(filename(no extension),Array{ComplexF32}) 
+- writecfl(filename.cfl, Array{ComplexF32}) 
+- writecfl(filename.hdr,Array{ComplexF32}) 
 
 Write complex data to files following the convention of the Berkeley Advanced Reconstruction Toolbox (BART).
 The input is an Array of ComplexF32 with the dimensions stored in a .hdr file.
 
-Parameters:
-    filenameBase:   path and filename of the cfl and hdr files, which can either be without extension, end on .cfl, or end on .hdr
-    Array{ComplexF32,N}:   Array of ComplexF32 corresponding to image/k-space
+## Parameters:
+- filename:   path and filename of the cfl and hdr files, which can either be without extension, end on .cfl, or end on .hdr
+- Array{ComplexF32,N}:   Array of ComplexF32 corresponding to image/k-space
 """
 function writecfl(filename::String,dataCfl::Array{ComplexF32})
 
