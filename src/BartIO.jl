@@ -56,7 +56,6 @@ function readreconheader(filenameBase::String)
 end
 
 """
-
     writecfl(filename::String,dataCfl::Array{ComplexF32})
 
 - writecfl(filename(no extension),Array{ComplexF32}) 
@@ -69,6 +68,7 @@ The input is an Array of ComplexF32 with the dimensions stored in a .hdr file.
 ## Parameters:
 - filename:   path and filename of the cfl and hdr files, which can either be without extension, end on .cfl, or end on .hdr
 - Array{ComplexF32,N}:   Array of ComplexF32 corresponding to image/k-space
+
 """
 function writecfl(filename::String,dataCfl::Array{ComplexF32})
 
