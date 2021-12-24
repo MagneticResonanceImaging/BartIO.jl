@@ -9,4 +9,5 @@ makedocs(
 
 deploydocs(;
                repo="github.com/aTrotier/BartIO.jl",
+               versions = nothing
            )               

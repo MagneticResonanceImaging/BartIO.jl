@@ -1,7 +1,73 @@
 module BartIO
 
+using ConfParser
+using PyCall
+
+# Exported functions
 export readcfl
 export writecfl
+export initBart
+
+"""
+    bart = initBart(pathtobart::String,pathtobartpy::String)
+
+Initialize the installation of bart and to bartpy in order to make it available 
+from the bartpy package through PyCall and store the path in a config file
+
+## Input Parameters
+- 
+
+## output
+
+# Example
+"""
+
+function initBart(path2bart::String="",path2bartpy::String="")
+    
+    conf = ConfParser.ConfParse("confs/config.ini")
+    parse_conf!(conf)
+
+    pathtobart=CheckAndSetPath!(conf,"BART","pathtobart",path2bart)
+    pathtobartpy=CheckAndSetPath!(conf,"BART","pathtobartpy",path2bartpy)
+
+    # Build PyBart
+    
+    path2BartPython = pathtobart*"/python"
+    py"""
+    import sys
+    import os
+    sys.path.insert(0, $path2BartPython)
+    os.environ['TOOLBOX_PATH'] = $pathtobart
+    """
+    python_pycall = PyCall.python
+
+    cmd = `cd $pathtobartpy \; $python_pycall setup.py install`
+    run(cmd)
+    
+    #@PyCall.pyimport bartpy.tools as bartpy #Equivalent to -> bartpy = pyimport("bartpy.tools") but does not work in module...
+    bartpy = pyimport("bartpy.tools")
+    bartpy.version()
+    
+    return bartpy
+end
+
+## Utility functions
+function CheckAndSetPath!(conf::ConfParse,blockname::String,pathname::String,path::String)
+        
+    if isempty(path); 
+        path = retrieve(conf,blockname,pathname)
+        if isempty(path); error("$pathname is not defined ! Set it with the function : \n initBart(path2bart::String,path2bartpy::String)"); end
+    else
+        commit!(conf, blockname, pathname, path);
+        save!(conf)
+    end
+        
+    # check if path exists
+    if !isdir(path)
+        error(path*" is not a valid directory ! redefined it")
+    end
+    return path
+end
 
 """
     readcfl(filename::String)
@@ -107,5 +173,7 @@ function writereconheader(filenameBase::String,dims::Array{Int})
     end
     close(fid)
 end
+
+
 
 end # module
