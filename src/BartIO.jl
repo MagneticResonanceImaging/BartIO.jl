@@ -23,27 +23,25 @@ from the bartpy package through PyCall and store the path in a config file
 """
 
 function initBart(path2bart::String="",path2bartpy::String="")
-    
+    println(pwd())
     conf = ConfParser.ConfParse("confs/config.ini")
     parse_conf!(conf)
 
     pathtobart=CheckAndSetPath!(conf,"BART","pathtobart",path2bart)
     pathtobartpy=CheckAndSetPath!(conf,"BART","pathtobartpy",path2bartpy)
 
+    BartIOPath = pwd()
     # Build PyBart
-    
-    path2BartPython = pathtobart*"/python"
-    py"""
-    import sys
-    import os
-    sys.path.insert(0, $path2BartPython)
-    os.environ['TOOLBOX_PATH'] = $pathtobart
-    """
     python_pycall = PyCall.python
+    PyCall.py"""
+    import os
+    os.environ['TOOLBOX_PATH'] = $pathtobart
+    print(os.environ['TOOLBOX_PATH'])
+    os.chdir($pathtobartpy)
+    os.system($python_pycall + " setup.py install --user")
+    """
+    cd(BartIOPath)
 
-    cmd = `cd $pathtobartpy \; $python_pycall setup.py install`
-    run(cmd)
-    
     #@PyCall.pyimport bartpy.tools as bartpy #Equivalent to -> bartpy = pyimport("bartpy.tools") but does not work in module...
     bartpy = pyimport("bartpy.tools")
     bartpy.version()

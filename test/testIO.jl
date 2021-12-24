@@ -24,6 +24,44 @@
     end
 end
 
+@testset "BART" begin
+    pathtobart = "/home/runner/work/BartIO.jl/BartIO.jl/bart"
+    pathtobartpy = "/home/runner/work/BartIO.jl/BartIO.jl/bartpy"
+    @testset "BART_files" begin
+        @test isfile("confs/config.ini")
+        @test isdir(pathtobart)
+        @test isdir(pathtobartpy)
+
+        strpy = readchomp(`python3 script.py`)
+        @test strpy == "hello world"
+    end
+
+    @testset "BART_exec" begin
+        #=
+        python_pycall = PyCall.python
+ 
+        PyCall.py"""
+        import os
+        os.environ['TOOLBOX_PATH'] = $pathtobart
+        print(os.environ['TOOLBOX_PATH'])
+        os.chdir($pathtobartpy)
+        os.system($python_pycall + " setup.py install --user")
+        """
+
+        #@PyCall.pyimport bartpy.tools as bartpy #Equivalent to -> bartpy = pyimport("bartpy.tools") but does not work in module...
+        bartpy = pyimport("bartpy.tools")
+        bartpy.version()
+        =#
+
+        bartpy = BartIO.initBart(pathtobart,pathtobartpy)
+        @test typeof(bartpy) == PyObject
+        @test size(bartpy.phantom()) == (128, 128)
+
+        bartpy2 = BartIO.initBart()
+        @test size(bartpy2.phantom()) == (128, 128)
+    end
+end
+
 
 
 
