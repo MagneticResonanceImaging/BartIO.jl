@@ -1,5 +1,6 @@
 module BartIO
 
+using BufferedStreams
 using ConfParser
 using PyCall
 
@@ -97,7 +98,7 @@ function readcfl(filename::String)
     dims = readreconheader(filenameBase);
     data = Array{ComplexF32}(undef, Tuple(dims))
 
-    fid = open(filename);
+    fid = BufferedInputStream(open(filename));
 
     for i in eachindex(data)
         data[i] = read(fid, Float32) + 1im * read(fid, Float32)
@@ -157,7 +158,7 @@ function writecfl(filename::String,dataCfl::Array{ComplexF32})
 
     writereconheader(filenameBase,dims);
 
-    fid = open(filename,"w");
+    fid = BufferedOutputStream(open(filename,"w"));
     write(fid,dataCfl)
     close(fid);
 end
