@@ -8,6 +8,6 @@ makedocs(
                ])
 
 deploydocs(;
-               repo="github.com/aTrotier/BartIO.jl",
+               repo="github.com/JakobAsslaender/BartIO.jl",
                versions = nothing
            )               
