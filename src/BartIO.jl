@@ -44,6 +44,9 @@ function initBart(path2bart::String="",path2bartpy::String="")
     BartIOPath = pwd()
     # Build PyBart
     python_pycall = PyCall.python
+
+    run(`$python_pycall -m pip install numpy`)
+    
     PyCall.py"""
     import os
     os.environ['TOOLBOX_PATH'] = $pathtobart
