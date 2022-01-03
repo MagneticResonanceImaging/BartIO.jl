@@ -9,41 +9,53 @@ export writecfl
 export initBart
 
 """
-    bart = initBart(pathtobart::String,pathtobartpy::String)
-
+    pybart::PyObject = initBart(path2bart::String="",path2bartpy::String="")
 Initialize the installation of bart and to bartpy in order to make it available 
-from the bartpy package through PyCall and store the path in a config file
-
-## Input Parameters
-- 
-
-## output
-
+from the bartpy package through PyCall and store the path in a config file.
+### Input Parameters
+- path2bart : path to the BART folder
+- path2bartpy : path to the bartpy folder
+### output
+- pybart : a wrapper to call bart from Julia through the python bartpy toolbox (see Example to learn how to use it)
 # Example
+```julia
+bartpy = BartIO.initBart(path2bartFolder,path2bartpyFolder)
+bartpy.version()
+k_phant = bartpy.phantom(x=64,k=1)
+```
+If you need help for the function you can either use :
+```
+run(`bart pics -h`)
+```
+or import with pycall the help function :
+```julia
+pyhelp = pybuiltin("help")
+pyhelp(bartpy.phantom)
+```
 """
-
 function initBart(path2bart::String="",path2bartpy::String="")
-    
+    println(pwd())
     conf = ConfParser.ConfParse("confs/config.ini")
     parse_conf!(conf)
 
     pathtobart=CheckAndSetPath!(conf,"BART","pathtobart",path2bart)
     pathtobartpy=CheckAndSetPath!(conf,"BART","pathtobartpy",path2bartpy)
 
+    BartIOPath = pwd()
     # Build PyBart
-    
-    path2BartPython = pathtobart*"/python"
-    py"""
-    import sys
-    import os
-    sys.path.insert(0, $path2BartPython)
-    os.environ['TOOLBOX_PATH'] = $pathtobart
-    """
     python_pycall = PyCall.python
 
-    cmd = `cd $pathtobartpy \; $python_pycall setup.py install`
-    run(cmd)
+    run(`$python_pycall -m pip install numpy`)
     
+    PyCall.py"""
+    import os
+    os.environ['TOOLBOX_PATH'] = $pathtobart
+    print(os.environ['TOOLBOX_PATH'])
+    os.chdir($pathtobartpy)
+    os.system($python_pycall + " setup.py install --user")
+    """
+    cd(BartIOPath)
+
     #@PyCall.pyimport bartpy.tools as bartpy #Equivalent to -> bartpy = pyimport("bartpy.tools") but does not work in module...
     bartpy = pyimport("bartpy.tools")
     bartpy.version()
