@@ -27,8 +27,8 @@ end
 @testset "BART" begin
     pathtobart = "/home/runner/work/BartIO.jl/BartIO.jl/bart"
     pathtobartpy = "/home/runner/work/BartIO.jl/BartIO.jl/bartpy"
+
     @testset "BART_files" begin
-        @test isfile("confs/config.ini")
         @test isdir(pathtobart)
         @test isdir(pathtobartpy)
 

@@ -37,3 +37,6 @@ or import with pycall the help function :
 pyhelp = pybuiltin("help")
 pyhelp(bartpy.phantom)
 ```
+
+# Remaining issues and TODO
+- Test work on CI but not on local due to the bart/bartpy path initialization in testIO.jl
