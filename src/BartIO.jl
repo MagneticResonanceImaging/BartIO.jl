@@ -35,7 +35,8 @@ pyhelp(bartpy.phantom)
 """
 function initBart(path2bart::String="",path2bartpy::String="")
     println(pwd())
-    conf = ConfParser.ConfParse("confs/config.ini")
+    conf_path=dirname(@__DIR__)*"/confs/config.ini"
+    conf = ConfParser.ConfParse(conf_path)
     parse_conf!(conf)
 
     pathtobart=CheckAndSetPath!(conf,"BART","pathtobart",path2bart)
