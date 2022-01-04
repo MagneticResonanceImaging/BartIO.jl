@@ -36,6 +36,14 @@ pyhelp(bartpy.phantom)
 function initBart(path2bart::String="",path2bartpy::String="")
     println(pwd())
     conf_path=dirname(@__DIR__)*"/confs/config.ini"
+
+    # check if file exists otherwise create it
+    if(!isfile(conf_path))
+        io = open(conf_path, "w")
+        write(io,"[bart]\npathtobartpy=\npathtobart=\n")
+        close(io)
+    end
+
     conf = ConfParser.ConfParse(conf_path)
     parse_conf!(conf)
 
