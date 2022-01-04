@@ -39,6 +39,7 @@ function initBart(path2bart::String="",path2bartpy::String="")
 
     # check if file exists otherwise create it
     if(!isfile(conf_path))
+        if !isdir() mkdir(dirname(conf_path)) end
         io = open(conf_path, "w")
         write(io,"[bart]\npathtobartpy=\npathtobart=\n")
         close(io)
