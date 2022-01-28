@@ -188,7 +188,7 @@ function writereconheader(filenameBase::String,dims::Array{Int})
     filename = string(filenameBase, ".hdr");
 
     fid = open(filename,"w");
-    write(fid,"# Dimension\n")
+    write(fid,"# Dimensions\n")
     a = length(dims)
     for i in 1:length(dims)
         write(fid,string(dims[i])*" ")
