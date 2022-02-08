@@ -1,7 +1,8 @@
 module BartIO
 
-using ConfParser
+using BufferedStreams
 using PyCall
+using Preferences
 
 # Exported functions
 export readcfl
@@ -19,7 +20,7 @@ from the bartpy package through PyCall and store the path in a config file.
 - pybart : a wrapper to call bart from Julia through the python bartpy toolbox (see Example to learn how to use it)
 # Example
 ```julia
-bartpy = BartIO.initBart(path2bartFolder,path2bartpyFolder)
+bartpy = BartIO.initBart(path2bart = path2bartFolder,path2bartpy = path2bartpyFolder)
 bartpy.version()
 k_phant = bartpy.phantom(x=64,k=1)
 ```
@@ -33,23 +34,10 @@ pyhelp = pybuiltin("help")
 pyhelp(bartpy.phantom)
 ```
 """
-function initBart(path2bart::String="",path2bartpy::String="")
-    println(pwd())
-    conf_path=dirname(@__DIR__)*"/confs/config.ini"
+function initBart(;path2bart::String="",path2bartpy::String="")
 
-    # check if file exists otherwise create it
-    if(!isfile(conf_path))
-        if !isdir(dirname(conf_path)) mkdir(dirname(conf_path)) end
-        io = open(conf_path, "w")
-        write(io,"[bart]\npathtobartpy=\npathtobart=\n")
-        close(io)
-    end
-
-    conf = ConfParser.ConfParse(conf_path)
-    parse_conf!(conf)
-
-    pathtobart=CheckAndSetPath!(conf,"BART","pathtobart",path2bart)
-    pathtobartpy=CheckAndSetPath!(conf,"BART","pathtobartpy",path2bartpy)
+    pathtobart=CheckAndSetPath!("pathtobart",path2bart)
+    pathtobartpy=CheckAndSetPath!("pathtobartpy",path2bartpy)
 
     BartIOPath = pwd()
     # Build PyBart
@@ -74,14 +62,13 @@ function initBart(path2bart::String="",path2bartpy::String="")
 end
 
 ## Utility functions
-function CheckAndSetPath!(conf::ConfParse,blockname::String,pathname::String,path::String)
+function CheckAndSetPath!(pathname::String,path::String)
         
     if isempty(path); 
-        path = retrieve(conf,blockname,pathname)
-        if isempty(path); error("$pathname is not defined ! Set it with the function : \n initBart(path2bart::String,path2bartpy::String)"); end
+        path = @load_preference(pathname)
+        if isnothing(path); error("$pathname is not defined; set it with the function : \n initBart($pathname = path::String)"); end
     else
-        commit!(conf, blockname, pathname, path);
-        save!(conf)
+        @set_preferences!(pathname => path)
     end
         
     # check if path exists
@@ -119,7 +106,7 @@ function readcfl(filename::String)
     dims = readreconheader(filenameBase);
     data = Array{ComplexF32}(undef, Tuple(dims))
 
-    fid = open(filename);
+    fid = BufferedInputStream(open(filename));
 
     for i in eachindex(data)
         data[i] = read(fid, Float32) + 1im * read(fid, Float32)
@@ -179,7 +166,7 @@ function writecfl(filename::String,dataCfl::Array{ComplexF32})
 
     writereconheader(filenameBase,dims);
 
-    fid = open(filename,"w");
+    fid = BufferedOutputStream(open(filename,"w"));
     write(fid,dataCfl)
     close(fid);
 end

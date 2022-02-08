@@ -53,7 +53,7 @@ end
         bartpy.version()
         =#
 
-        bartpy = BartIO.initBart(pathtobart,pathtobartpy)
+        bartpy = BartIO.initBart(path2bart = pathtobart, path2bartpy = pathtobartpy)
         @test typeof(bartpy) == PyObject
         @test size(bartpy.phantom()) == (128, 128)
 
