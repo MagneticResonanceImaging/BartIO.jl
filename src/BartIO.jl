@@ -8,16 +8,30 @@ using Preferences
 export readcfl
 export writecfl
 export initBart
+export checkPath
+export wrapperBart
+export wrapperBartpy
 
 """
     pybart::PyObject = initBart(path2bart::String="",path2bartpy::String="")
-Initialize the installation of bart and to bartpy in order to make it available 
-from the bartpy package through PyCall and store the path in a config file.
-### Input Parameters
+Initialize the installation of bart and to bartpy and store the path in a config file.
+### Optionnal input Parameters
 - path2bart : path to the BART folder
 - path2bartpy : path to the bartpy folder
+"""
+function initBart(;path2bart::String="",path2bartpy::String="")
+
+    pathtobart=CheckAndSetPath!("bart",path2bart)
+    pathtobartpy=CheckAndSetPath!("bartpy",path2bartpy)
+end
+
+"""
+bartpyWrap = wrapperBartpy()
+
+
 ### output
-- pybart : a wrapper to call bart from Julia through the python bartpy toolbox (see Example to learn how to use it)
+- bartpyWrap : a wrapper to call bart from Julia through the python bartpy toolbox (see Example to learn how to use it)
+
 # Example
 ```julia
 bartpy = BartIO.initBart(path2bart = path2bartFolder,path2bartpy = path2bartpyFolder)
@@ -30,35 +44,93 @@ run(`bart pics -h`)
 ```
 or import with pycall the help function :
 ```julia
+using PyCall
 pyhelp = pybuiltin("help")
 pyhelp(bartpy.phantom)
 ```
 """
-function initBart(;path2bart::String="",path2bartpy::String="")
+function wrapperBartpy()
+    bart,bartpy = checkPath()
 
-    pathtobart=CheckAndSetPath!("pathtobart",path2bart)
-    pathtobartpy=CheckAndSetPath!("pathtobartpy",path2bartpy)
-
-    BartIOPath = pwd()
-    # Build PyBart
     python_pycall = PyCall.python
 
     run(`$python_pycall -m pip install numpy`)
     
     PyCall.py"""
     import os
-    os.environ['TOOLBOX_PATH'] = $pathtobart
+    os.environ['TOOLBOX_PATH'] = $bart
     print(os.environ['TOOLBOX_PATH'])
-    os.chdir($pathtobartpy)
+    os.chdir($bartpy)
     os.system($python_pycall + " setup.py install --user")
     """
+    BartIOPath = pwd()
     cd(BartIOPath)
 
     #@PyCall.pyimport bartpy.tools as bartpy #Equivalent to -> bartpy = pyimport("bartpy.tools") but does not work in module...
-    bartpy = pyimport("bartpy.tools")
-    bartpy.version()
+    bartpyWrap = pyimport("bartpy.tools")
+    bartpyWrap.version()
     
-    return bartpy
+    return bartpyWrap
+end
+
+"""
+    bartWrap = wrapperBart()
+
+    ### output
+    - bartWrap : a wrapper to call bart from Julia through the python functions from the bart repository.
+
+    Example : 
+    ````
+    bartWrap = wrapperBart()
+    bartWrap.bart(0,"version")
+
+    bartWrap.bart(0,"phantom -h")
+    bartWrap.bart(1,"phantom -k -x128")
+    ````
+"""
+function wrapperBart()
+    bart,bartpy = checkPath()
+    
+    python_pycall = PyCall.python
+
+    run(`$python_pycall -m pip install numpy`)
+
+    PyCall.py"""
+    import os
+    import sys
+    os.environ['TOOLBOX_PATH'] = $bart
+    path = os.environ["TOOLBOX_PATH"] + "/python/"
+    sys.path.append(path)
+    """
+
+    bartWrap = pyimport("bart")
+    bartWrap.bart(0,"version")
+    
+    return bartWrap
+end
+
+"""
+    checkPath()
+
+    Print the path store in the LocalPreference.toml for :
+    - bart
+    - bartpy
+"""
+function checkPath()
+    pathname = ["bart","bartpy"]
+    paths = String[]
+    for i in pathname
+        path = @load_preference(i)
+        
+        if isnothing(path)
+            println("$i is empty")
+            push!(paths,(i,""))
+        else
+            println("$i = $path")
+            push!(paths,path)
+        end
+    end
+    return paths[1], paths[2]
 end
 
 ## Utility functions

@@ -28,6 +28,7 @@ end
 
     pathtobart = "/home/runner/work/BartIO.jl/BartIO.jl/bart"
     pathtobartpy = "/home/runner/work/BartIO.jl/BartIO.jl/bartpy"
+
     if !(isdir(pathtobart) && isdir(pathtobartpy))
         @info("BART wrapper is only tested on github actions")
     else
@@ -42,28 +43,16 @@ end
         end
 
         @testset "BART_exec" begin
-            #=
-            python_pycall = PyCall.python
 
-            PyCall.py"""
-            import os
-            os.environ['TOOLBOX_PATH'] = $pathtobart
-            print(os.environ['TOOLBOX_PATH'])
-            os.chdir($pathtobartpy)
-            os.system($python_pycall + " setup.py install --user")
-            """
+            BartIO.initBart(path2bart = pathtobart, path2bartpy = pathtobartpy)
 
-            #@PyCall.pyimport bartpy.tools as bartpy #Equivalent to -> bartpy = pyimport("bartpy.tools") but does not work in module...
-            bartpy = pyimport("bartpy.tools")
-            bartpy.version()
-            =#
-
-            bartpy = BartIO.initBart(path2bart = pathtobart, path2bartpy = pathtobartpy)
+            bartpy = BartIO.wrapperBartpy()
             @test typeof(bartpy) == PyObject
             @test size(bartpy.phantom()) == (128, 128)
 
-            bartpy2 = BartIO.initBart()
-            @test size(bartpy2.phantom()) == (128, 128)
+            bart = BartIO.wrapperBart()
+            phant = bart.bart(1,"phantom")
+            @test size(phant) == (128, 128)
         end
     end
 end
