@@ -21,8 +21,8 @@ Initialize the installation of bart and to bartpy and store the path in a config
 """
 function initBart(;path2bart::String="",path2bartpy::String="")
 
-    pathtobart=CheckAndSetPath!("bart",path2bart)
-    pathtobartpy=CheckAndSetPath!("bartpy",path2bartpy)
+    @set_preferences!("bart" => path2bart)
+    @set_preferences!("bartpy" => path2bartpy)
 end
 
 """
@@ -131,23 +131,6 @@ function checkPath()
         end
     end
     return paths[1], paths[2]
-end
-
-## Utility functions
-function CheckAndSetPath!(pathname::String,path::String)
-        
-    if isempty(path); 
-        path = @load_preference(pathname)
-        if isnothing(path); error("$pathname is not defined; set it with the function : \n initBart($pathname = path::String)"); end
-    else
-        @set_preferences!(pathname => path)
-    end
-        
-    # check if path exists
-    if !isdir(path)
-        error(path*" is not a valid directory ! redefined it")
-    end
-    return path
 end
 
 """
