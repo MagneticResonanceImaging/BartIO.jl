@@ -27,6 +27,7 @@ end
 @testset "BART" begin
 
     pathtobart = "/home/runner/work/BartIO.jl/bart"
+    @test checkPath() == ""
 
     if !(isdir(pathtobart))
         @info("BART wrapper is only tested on github actions")
@@ -36,13 +37,14 @@ end
 
             strpy = readchomp(`python3 script.py`)
             @test strpy == "hello world"
-        end
+    end
 
         @testset "BART_exec" begin
-
             BartIO.initBart(path2bart = pathtobart)
+            @test checkPath() == "/home/runner/work/BartIO.jl/bart"
+
             bart = BartIO.wrapperBart()
-            phant = bart.bart(1,"phantom")
+            phant = bart(1,"phantom")
             @test size(phant) == (128, 128)
         end
     end

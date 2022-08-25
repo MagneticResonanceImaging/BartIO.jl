@@ -10,11 +10,10 @@ export writecfl
 export initBart
 export checkPath
 export wrapperBart
-export wrapperBartpy
 
 """
     pybart::PyObject = initBart(path2bart::String="")
-Initialize the installation of bart and to bartpy and store the path in a config file.
+Initialize the installation of bart and store the path in a config file.
 ### Optionnal input Parameters
 - path2bart : path to the BART folder
 """
@@ -38,7 +37,7 @@ end
     ````
 """
 function wrapperBart()
-    bart,bartpy = checkPath()
+    bart = checkPath()
 
     python_pycall = PyCall.python
 
@@ -55,7 +54,7 @@ function wrapperBart()
     bartWrap = pyimport("bart")
     bartWrap.bart(0,"version")
 
-    return bartWrap
+    return bartWrap.bart
 end
 
 """
@@ -63,23 +62,16 @@ end
 
     Print the path store in the LocalPreference.toml for :
     - bart
-    - bartpy
 """
 function checkPath()
-    pathname = ["bart"]
-    paths = String[]
-    for i in pathname
-        path = @load_preference(i)
-
-        if isnothing(path)
-            println("$i is empty")
-            push!(paths,(i,""))
-        else
-            println("$i = $path")
-            push!(paths,path)
-        end
+    path = @load_preference("bart")
+    if isnothing(path)
+        println("path to bart is empty in preference")
+        return ""
+    else
+        println("$i = $path")
+        return path
     end
-    return paths[1], paths[2]
 end
 
 """
