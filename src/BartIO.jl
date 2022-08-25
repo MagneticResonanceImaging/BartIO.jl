@@ -69,7 +69,7 @@ function checkPath()
         println("path to bart is empty in preference")
         return ""
     else
-        println("$i = $path")
+        println("bart = $path")
         return path
     end
 end
