@@ -42,9 +42,6 @@ jobs:
               ls -l bart
               ./bart version
       - run: |
-              git clone https://github.com/mrirecon/bartpy
-              cd bartpy
-              ls -l setup.*
               pip install numpy
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1

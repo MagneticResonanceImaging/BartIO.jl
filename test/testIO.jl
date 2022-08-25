@@ -26,7 +26,7 @@ end
 
 @testset "BART" begin
 
-    pathtobart = "/home/runner/work/BartIO.jl/BartIO.jl/bart"
+    pathtobart = "/home/runner/work/BartIO.jl/bart"
 
     if !(isdir(pathtobart))
         @info("BART wrapper is only tested on github actions")
