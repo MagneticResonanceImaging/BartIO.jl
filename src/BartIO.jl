@@ -1,73 +1,49 @@
 module BartIO
 
 using BufferedStreams
-using ConfParser
 using PyCall
 
 # Exported functions
 export readcfl
 export writecfl
-export initBart
+export wrapperBart
 
 """
-    bart = initBart(pathtobart::String,pathtobartpy::String)
+    bartWrap = wrapperBart(pathtobart::String)
 
-Initialize the installation of bart and to bartpy in order to make it available 
-from the bartpy package through PyCall and store the path in a config file
+    ### output
+    - bartWrap : a wrapper to call bart from Julia through the python functions from the bart repository.
 
-## Input Parameters
-- 
+    Example :
+    ````
+    bartWrap = wrapperBart(pathtobart)
+    bartWrap.bart(0,"version")
 
-## output
-
-# Example
+    bartWrap.bart(0,"phantom -h")
+    bartWrap.bart(1,"phantom -k -x128")
+    ````
 """
+function wrapperBart(pathtobart::String)
+    if !isdir(pathtobart)
+        @warn "BART folder does not exists"
+    end
 
-function initBart(path2bart::String="",path2bartpy::String="")
-    
-    conf = ConfParser.ConfParse("confs/config.ini")
-    parse_conf!(conf)
-
-    pathtobart=CheckAndSetPath!(conf,"BART","pathtobart",path2bart)
-    pathtobartpy=CheckAndSetPath!(conf,"BART","pathtobartpy",path2bartpy)
-
-    # Build PyBart
-    
-    path2BartPython = pathtobart*"/python"
-    py"""
-    import sys
-    import os
-    sys.path.insert(0, $path2BartPython)
-    os.environ['TOOLBOX_PATH'] = $pathtobart
-    """
     python_pycall = PyCall.python
 
-    cmd = `cd $pathtobartpy \; $python_pycall setup.py install`
-    run(cmd)
-    
-    #@PyCall.pyimport bartpy.tools as bartpy #Equivalent to -> bartpy = pyimport("bartpy.tools") but does not work in module...
-    bartpy = pyimport("bartpy.tools")
-    bartpy.version()
-    
-    return bartpy
-end
+    run(`$python_pycall -m pip install numpy`)
 
-## Utility functions
-function CheckAndSetPath!(conf::ConfParse,blockname::String,pathname::String,path::String)
-        
-    if isempty(path); 
-        path = retrieve(conf,blockname,pathname)
-        if isempty(path); error("$pathname is not defined ! Set it with the function : \n initBart(path2bart::String,path2bartpy::String)"); end
-    else
-        commit!(conf, blockname, pathname, path);
-        save!(conf)
-    end
-        
-    # check if path exists
-    if !isdir(path)
-        error(path*" is not a valid directory ! redefined it")
-    end
-    return path
+    PyCall.py"""
+    import os
+    import sys
+    os.environ['TOOLBOX_PATH'] = $pathtobart
+    path = os.environ["TOOLBOX_PATH"] + "/python/"
+    sys.path.append(path)
+    """
+
+    bartWrap = pyimport("bart")
+    bartWrap.bart(0,"version")
+
+    return bartWrap.bart
 end
 
 """
@@ -111,7 +87,7 @@ end
 function readreconheader(filenameBase::String)
     filename = string(filenameBase, ".hdr");
     fid = open(filename);
-    
+
     line = ["#"]
     while line[1] == "#"
         line = split(readline(fid))
@@ -125,9 +101,9 @@ end
 """
     writecfl(filename::String,dataCfl::Array{ComplexF32})
 
-- writecfl(filename(no extension),Array{ComplexF32}) 
-- writecfl(filename.cfl, Array{ComplexF32}) 
-- writecfl(filename.hdr,Array{ComplexF32}) 
+- writecfl(filename(no extension),Array{ComplexF32})
+- writecfl(filename.cfl, Array{ComplexF32})
+- writecfl(filename.hdr,Array{ComplexF32})
 
 Write complex data to files following the convention of the Berkeley Advanced Reconstruction Toolbox (BART).
 The input is an Array of ComplexF32 with the dimensions stored in a .hdr file.
@@ -152,7 +128,7 @@ function writecfl(filename::String,dataCfl::Array{ComplexF32})
     dimTuple = size(dataCfl)
     dims = ones(Int,16,1)
 
-    for i in 1:length(dimTuple)
+    for i in eachindex(dimTuple)
         dims[i]=dimTuple[i];
     end
 
@@ -167,7 +143,7 @@ function writereconheader(filenameBase::String,dims::Array{Int})
     filename = string(filenameBase, ".hdr");
 
     fid = open(filename,"w");
-    write(fid,"# Dimension\n")
+    write(fid,"# Dimensions\n")
     a = length(dims)
     for i in 1:length(dims)
         write(fid,string(dims[i])*" ")
