@@ -2,42 +2,31 @@ module BartIO
 
 using BufferedStreams
 using PyCall
-using Preferences
 
 # Exported functions
 export readcfl
 export writecfl
-export initBart
-export checkPath
 export wrapperBart
 
 """
-    pybart::PyObject = initBart(path2bart::String="")
-Initialize the installation of bart and store the path in a config file.
-### Optionnal input Parameters
-- path2bart : path to the BART folder
-"""
-function initBart(;path2bart::String="")
-    @set_preferences!("bart" => path2bart)
-end
-
-"""
-    bartWrap = wrapperBart()
+    bartWrap = wrapperBart(pathtobart::String)
 
     ### output
     - bartWrap : a wrapper to call bart from Julia through the python functions from the bart repository.
 
     Example :
     ````
-    bartWrap = wrapperBart()
+    bartWrap = wrapperBart(pathtobart)
     bartWrap.bart(0,"version")
 
     bartWrap.bart(0,"phantom -h")
     bartWrap.bart(1,"phantom -k -x128")
     ````
 """
-function wrapperBart()
-    bart = checkPath()
+function wrapperBart(pathtobart::String)
+    if !isdir(pathtobart)
+        @warn "BART folder does not exists"
+    end
 
     python_pycall = PyCall.python
 
@@ -46,7 +35,7 @@ function wrapperBart()
     PyCall.py"""
     import os
     import sys
-    os.environ['TOOLBOX_PATH'] = $bart
+    os.environ['TOOLBOX_PATH'] = $pathtobart
     path = os.environ["TOOLBOX_PATH"] + "/python/"
     sys.path.append(path)
     """
@@ -55,23 +44,6 @@ function wrapperBart()
     bartWrap.bart(0,"version")
 
     return bartWrap.bart
-end
-
-"""
-    checkPath()
-
-    Print the path store in the LocalPreference.toml for :
-    - bart
-"""
-function checkPath()
-    path = @load_preference("bart")
-    if isnothing(path)
-        println("path to bart is empty in preference")
-        return ""
-    else
-        println("bart = $path")
-        return path
-    end
 end
 
 """
@@ -156,7 +128,7 @@ function writecfl(filename::String,dataCfl::Array{ComplexF32})
     dimTuple = size(dataCfl)
     dims = ones(Int,16,1)
 
-    for i in 1:length(dimTuple)
+    for i in eachindex(dimTuple)
         dims[i]=dimTuple[i];
     end
 
