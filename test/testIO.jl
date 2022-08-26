@@ -8,13 +8,13 @@
         ## Read bart files
         println(pwd())
         filenameIn = "data/in"
-        im = BartIO.readcfl(filenameIn)
+        im = read_cfl(filenameIn)
 
         ## test writing to file
         filenameOut = "data/out"
-        BartIO.writecfl(filenameOut, im)
+        write_cfl(filenameOut, im)
         ## Read back that files
-        im2 = BartIO.readcfl(filenameOut)
+        im2 = read_cfl(filenameOut)
         rm(filenameOut * ".hdr")
         rm(filenameOut * ".cfl")
 
@@ -31,7 +31,7 @@ end
         pathtobart = "/home/runner/work/BartIO.jl/BartIO.jl/bart"
     end
 
-    bart = BartIO.wrapper_bart(pathtobart)
+    bart = wrapper_bart(pathtobart)
     phant = bart(1,"phantom")
     @test size(phant) == (128, 128)
 end

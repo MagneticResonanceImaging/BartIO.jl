@@ -4,12 +4,12 @@ using BufferedStreams
 using PyCall
 
 # Exported functions
-export readcfl
-export writecfl
+export read_cfl
+export write_cfl
 export wrapper_bart
 
 """
-    bartWrap = wrapper_bart(pathtobart::String)
+    bart = wrapper_bart(pathtobart::String)
 
     ### output
     - bart : a wrapper to call bart from Julia through the python functions from the bart repository.
@@ -47,11 +47,11 @@ function wrapper_bart(pathtobart::String)
 end
 
 """
-    readcfl(filename::String)
+    read_cfl(filename::String)
 
-- readcfl(filename(no extension)) -> Array{ComplexF32,N} where N is defined the filename.hdr file
-- readcfl(filename.cfl) -> Array{ComplexF32,N} where N is defined the filename.hdr file
-- readcfl(filename.hdr) -> Array{ComplexF32,N} where N is defined the filename.hdr file
+- read_cfl(filename(no extension)) -> Array{ComplexF32,N} where N is defined the filename.hdr file
+- read_cfl(filename.cfl) -> Array{ComplexF32,N} where N is defined the filename.hdr file
+- read_cfl(filename.hdr) -> Array{ComplexF32,N} where N is defined the filename.hdr file
 
 Reads complex data from files created by the Berkeley Advanced Reconstruction Toolbox (BART).
 The output is an Array of ComplexF32 with the dimensions stored in a .hdr file.
@@ -59,7 +59,7 @@ The output is an Array of ComplexF32 with the dimensions stored in a .hdr file.
 ## Parameters:
 - filename:   path and filename of the cfl and hdr files, which can either be without extension, end on .cfl, or end on .hdr
 """
-function readcfl(filename::String)
+function read_cfl(filename::String)
 
     if filename[end-3:end] == ".cfl"
         filenameBase = filename[1:end-4]
@@ -71,7 +71,7 @@ function readcfl(filename::String)
         filename = string(filenameBase, ".cfl");
     end
 
-    dims = readreconheader(filenameBase);
+    dims = read_recon_header(filenameBase);
     data = Array{ComplexF32}(undef, Tuple(dims))
 
     fid = BufferedInputStream(open(filename));
@@ -84,7 +84,7 @@ function readcfl(filename::String)
     return data
 end
 
-function readreconheader(filenameBase::String)
+function read_recon_header(filenameBase::String)
     filename = string(filenameBase, ".hdr");
     fid = open(filename);
 
@@ -99,11 +99,11 @@ function readreconheader(filenameBase::String)
 end
 
 """
-    writecfl(filename::String,dataCfl::Array{ComplexF32})
+    write_cfl(filename::String,dataCfl::Array{ComplexF32})
 
-- writecfl(filename(no extension),Array{ComplexF32})
-- writecfl(filename.cfl, Array{ComplexF32})
-- writecfl(filename.hdr,Array{ComplexF32})
+- write_cfl(filename(no extension),Array{ComplexF32})
+- write_cfl(filename.cfl, Array{ComplexF32})
+- write_cfl(filename.hdr,Array{ComplexF32})
 
 Write complex data to files following the convention of the Berkeley Advanced Reconstruction Toolbox (BART).
 The input is an Array of ComplexF32 with the dimensions stored in a .hdr file.
@@ -113,7 +113,7 @@ The input is an Array of ComplexF32 with the dimensions stored in a .hdr file.
 - Array{ComplexF32,N}:   Array of ComplexF32 corresponding to image/k-space
 
 """
-function writecfl(filename::String,dataCfl::Array{ComplexF32})
+function write_cfl(filename::String,dataCfl::Array{ComplexF32})
 
     if filename[end-3:end] == ".cfl"
         filenameBase = filename[1:end-4]
@@ -132,14 +132,14 @@ function writecfl(filename::String,dataCfl::Array{ComplexF32})
         dims[i]=dimTuple[i];
     end
 
-    writereconheader(filenameBase,dims);
+    write_recon_header(filenameBase,dims);
 
     fid = BufferedOutputStream(open(filename,"w"));
     write(fid,dataCfl)
     close(fid);
 end
 
-function writereconheader(filenameBase::String,dims::Array{Int})
+function write_recon_header(filenameBase::String,dims::Array{Int})
     filename = string(filenameBase, ".hdr");
 
     fid = open(filename,"w");
