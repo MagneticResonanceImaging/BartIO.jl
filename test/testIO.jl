@@ -25,26 +25,13 @@
 end
 
 @testset "BART" begin
-    pathtobart = "/home/runner/work/BartIO.jl/BartIO.jl/bart"
-
     if Sys.isapple()
-        @warn "BART execution is currently not tested on macOS version"
-
-        @info "test pycall setup"
-        python_pycall = PyCall.python
-        run(`$python_pycall -m pip install numpy`)
-        PyCall.py"""
-        import os
-        import sys
-        os.environ['TOOLBOX_PATH'] = $pathtobart
-        path = os.environ["TOOLBOX_PATH"] + "/python/"
-        sys.path.append(path)
-        """
-
+        pathtobart ="/Users/runner/work/BartIO.jl/BartIO.jl/bart"
     else
-        @info "test whole wrapper"
-        bart = BartIO.wrapperBart(pathtobart)
-        phant = bart(1,"phantom")
-        @test size(phant) == (128, 128)
+        pathtobart = "/home/runner/work/BartIO.jl/BartIO.jl/bart"
     end
+
+    bart = BartIO.wrapper_bart(pathtobart)
+    phant = bart(1,"phantom")
+    @test size(phant) == (128, 128)
 end

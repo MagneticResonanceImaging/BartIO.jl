@@ -6,24 +6,24 @@ using PyCall
 # Exported functions
 export readcfl
 export writecfl
-export wrapperBart
+export wrapper_bart
 
 """
-    bartWrap = wrapperBart(pathtobart::String)
+    bartWrap = wrapper_bart(pathtobart::String)
 
     ### output
-    - bartWrap : a wrapper to call bart from Julia through the python functions from the bart repository.
+    - bart : a wrapper to call bart from Julia through the python functions from the bart repository.
 
     Example :
     ````
-    bartWrap = wrapperBart(pathtobart)
-    bartWrap.bart(0,"version")
+    bart = wrapper_bart(pathtobart)
+    bart(0,"version")
 
-    bartWrap.bart(0,"phantom -h")
-    bartWrap.bart(1,"phantom -k -x128")
+    bart(0,"phantom -h")
+    bart(1,"phantom -k -x128")
     ````
 """
-function wrapperBart(pathtobart::String)
+function wrapper_bart(pathtobart::String)
     if !isdir(pathtobart)
         @warn "BART folder does not exists"
     end

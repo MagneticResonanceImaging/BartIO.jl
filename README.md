@@ -21,7 +21,7 @@ To write BART compatible files, call  `writecfl(filename, x)`, where `filename` 
 
 **Usage**
 ```julia
-bart = wrapperBart(path2bartFolder)
+bart = wrapper_bart(path2bartFolder)
 bart(0,"version")
 k_phan = bart(0,"phantom -x64 -k")
 ```
