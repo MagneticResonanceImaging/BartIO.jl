@@ -20,18 +20,17 @@
 
         ## test
         @test im == im2
-
     end
 end
 
 @testset "BART" begin
     if Sys.isapple()
-        pathtobart ="/Users/runner/work/BartIO.jl/BartIO.jl/bart"
+        pathtobart = "/Users/runner/work/BartIO.jl/BartIO.jl/bart"
     else
         pathtobart = "/home/runner/work/BartIO.jl/BartIO.jl/bart"
     end
 
     bart = wrapper_bart(pathtobart)
-    phant = bart(1,"phantom")
+    phant = bart(1, "phantom")
     @test size(phant) == (128, 128)
 end

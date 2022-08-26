@@ -41,7 +41,7 @@ function wrapper_bart(pathtobart::String)
     """
 
     bartWrap = pyimport("bart")
-    bartWrap.bart(0,"version")
+    bartWrap.bart(0, "version")
 
     return bartWrap.bart
 end
@@ -60,33 +60,32 @@ The output is an Array of ComplexF32 with the dimensions stored in a .hdr file.
 - filename:   path and filename of the cfl and hdr files, which can either be without extension, end on .cfl, or end on .hdr
 """
 function read_cfl(filename::String)
-
-    if filename[end-3:end] == ".cfl"
-        filenameBase = filename[1:end-4]
-    elseif filename[end-3:end] == ".hdr"
-        filenameBase = filename[1:end-4]
-        filename = string(filenameBase, ".cfl");
+    if filename[(end - 3):end] == ".cfl"
+        filenameBase = filename[1:(end - 4)]
+    elseif filename[(end - 3):end] == ".hdr"
+        filenameBase = filename[1:(end - 4)]
+        filename = string(filenameBase, ".cfl")
     else
         filenameBase = filename
-        filename = string(filenameBase, ".cfl");
+        filename = string(filenameBase, ".cfl")
     end
 
-    dims = read_recon_header(filenameBase);
+    dims = read_recon_header(filenameBase)
     data = Array{ComplexF32}(undef, Tuple(dims))
 
-    fid = BufferedInputStream(open(filename));
+    fid = BufferedInputStream(open(filename))
 
     for i in eachindex(data)
         data[i] = read(fid, Float32) + 1im * read(fid, Float32)
     end
 
-    close(fid);
+    close(fid)
     return data
 end
 
 function read_recon_header(filenameBase::String)
-    filename = string(filenameBase, ".hdr");
-    fid = open(filename);
+    filename = string(filenameBase, ".hdr")
+    fid = open(filename)
 
     line = ["#"]
     while line[1] == "#"
@@ -94,7 +93,7 @@ function read_recon_header(filenameBase::String)
     end
 
     dims = parse.(Int, line)
-    close(fid);
+    close(fid)
     return dims
 end
 
@@ -113,44 +112,41 @@ The input is an Array of ComplexF32 with the dimensions stored in a .hdr file.
 - Array{ComplexF32,N}:   Array of ComplexF32 corresponding to image/k-space
 
 """
-function write_cfl(filename::String,dataCfl::Array{ComplexF32})
-
-    if filename[end-3:end] == ".cfl"
-        filenameBase = filename[1:end-4]
-    elseif filename[end-3:end] == ".hdr"
-        filenameBase = filename[1:end-4]
-        filename = string(filenameBase, ".cfl");
+function write_cfl(filename::String, dataCfl::Array{ComplexF32})
+    if filename[(end - 3):end] == ".cfl"
+        filenameBase = filename[1:(end - 4)]
+    elseif filename[(end - 3):end] == ".hdr"
+        filenameBase = filename[1:(end - 4)]
+        filename = string(filenameBase, ".cfl")
     else
         filenameBase = filename
-        filename = string(filenameBase, ".cfl");
+        filename = string(filenameBase, ".cfl")
     end
 
     dimTuple = size(dataCfl)
-    dims = ones(Int,16,1)
+    dims = ones(Int, 16, 1)
 
     for i in eachindex(dimTuple)
-        dims[i]=dimTuple[i];
+        dims[i] = dimTuple[i]
     end
 
-    write_recon_header(filenameBase,dims);
+    write_recon_header(filenameBase, dims)
 
-    fid = BufferedOutputStream(open(filename,"w"));
-    write(fid,dataCfl)
-    close(fid);
+    fid = BufferedOutputStream(open(filename, "w"))
+    write(fid, dataCfl)
+    return close(fid)
 end
 
-function write_recon_header(filenameBase::String,dims::Array{Int})
-    filename = string(filenameBase, ".hdr");
+function write_recon_header(filenameBase::String, dims::Array{Int})
+    filename = string(filenameBase, ".hdr")
 
-    fid = open(filename,"w");
-    write(fid,"# Dimensions\n")
+    fid = open(filename, "w")
+    write(fid, "# Dimensions\n")
     a = length(dims)
     for i in 1:length(dims)
-        write(fid,string(dims[i])*" ")
+        write(fid, string(dims[i]) * " ")
     end
-    close(fid)
+    return close(fid)
 end
-
-
 
 end # module
