@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/aTrotier/BartIO.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/aTrotier/BartIO.jl/actions/workflows/CI.yml?query=branch%3Amaster)
 [![Coverage](https://codecov.io/gh/aTrotier/BartIO.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/aTrotier/BartIO.jl)
 
-BartIO.jl is a Julia package in order to interact iwth the [Berkeley Advanced Reconstruction Toolbox (BART)](https://mrirecon.github.io/bart/). 
+BartIO.jl is a Julia package in order to interact with the [Berkeley Advanced Reconstruction Toolbox (BART)](https://mrirecon.github.io/bart/). 
 
 This package offers the possibility to :
 - read and write cfl/hdr files used by the BART Toolbox
@@ -21,8 +21,7 @@ To write BART compatible files, call  `writecfl(filename, x)`, where `filename` 
 
 **Usage**
 ```julia
-initBart(path2bartFolder)
-bart = wrapperBart()
+bart = wrapperBart(path2bartFolder)
 bart(0,"version")
 k_phan = bart(0,"phantom -x64 -k")
 ```

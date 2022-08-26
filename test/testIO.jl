@@ -25,27 +25,26 @@
 end
 
 @testset "BART" begin
+    pathtobart = "/home/runner/work/BartIO.jl/BartIO.jl/bart"
 
-    pathtobart = "/home/runner/work/BartIO.jl/bart"
-    @test checkPath() == ""
+    if Sys.isapple()
+        @warn "BART execution is currently not tested on macOS version"
 
-    if !(isdir(pathtobart))
-        @info("BART wrapper is only tested on github actions")
+        @info "test pycall setup"
+        python_pycall = PyCall.python
+        run(`$python_pycall -m pip install numpy`)
+        PyCall.py"""
+        import os
+        import sys
+        os.environ['TOOLBOX_PATH'] = $pathtobart
+        path = os.environ["TOOLBOX_PATH"] + "/python/"
+        sys.path.append(path)
+        """
+
     else
-        @testset "BART_files" begin
-            @test isdir(pathtobart)
-
-            strpy = readchomp(`python3 script.py`)
-            @test strpy == "hello world"
-    end
-
-        @testset "BART_exec" begin
-            BartIO.initBart(path2bart = pathtobart)
-            @test checkPath() == "/home/runner/work/BartIO.jl/bart"
-
-            bart = BartIO.wrapperBart()
-            phant = bart(1,"phantom")
-            @test size(phant) == (128, 128)
-        end
+        @info "test whole wrapper"
+        bart = BartIO.wrapperBart(pathtobart)
+        phant = bart(1,"phantom")
+        @test size(phant) == (128, 128)
     end
 end
