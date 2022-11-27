@@ -11,5 +11,7 @@ PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
+julia = "1.6"
+BufferedStreams = "1"
 Documenter = "0.27"
 PyCall = "1"
