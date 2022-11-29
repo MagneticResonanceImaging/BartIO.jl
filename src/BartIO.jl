@@ -1,18 +1,44 @@
 module BartIO
 
 using BufferedStreams
-using PyCall
 
 # Exported functions
-export read_cfl
-export write_cfl
-export wrapper_bart
+export read_cfl, write_cfl, read_recon_header
+export set_bart_path, get_bart_path, bart
+
+
+"""
+    set_bart_path(pathToBart::String)
+
+Define the path to the BART toolbox (store in ENV["TOOLBOX_PATH"])
+"""
+function set_bart_path(pathToBart::String)
+    ENV["TOOLBOX_PATH"]=pathToBart
+    return pathToBart
+end
+
+function get_bart_path()
+        # Check bart toolbox path
+        bart_path = ENV["TOOLBOX_PATH"];
+        if isempty(bart_path)
+            if isfile("/usr/local/bin/bart")
+                bart_path = "/usr/local/bin";
+            elseif isfile("/usr/bin/bart")
+                bart_path = "/usr/bin";
+        end
+    end
+    return bart_path
+end
 
 """
     bart = wrapper_bart(pathtobart::String)
+    Args are concatenated at the end of the command.
 
     ### output
     - bart : a wrapper to call bart from Julia through the python functions from the bart repository.
+
+    TO DO :
+    - add kwargs support like in the python wrapper https://github.com/mrirecon/bart/pull/295
 
     Example :
     ````
@@ -23,27 +49,59 @@ export wrapper_bart
     bart(1,"phantom -k -x128")
     ````
 """
-function wrapper_bart(pathtobart::String)
-    if !isdir(pathtobart)
-        @warn "BART folder does not exists"
+function bart(nargout::Int,cmd,args::Vararg{Array{ComplexF32}})
+    # Check input variables
+    if isdispatchtuple(args) || isempty(cmd) nargout < 0
+        @warn "Usage: bart(<nargout>,<command>, <arguments...>\n\n"
+        return nothing
     end
 
-    python_pycall = PyCall.python
+    # Check bart toolbox path
+    bart_path = get_bart_path()
+    if isempty(bart_path)
+        @error "BART path not detected.\n Use : `set_bart_path(pathToBart)`"
+    end
 
-    run(`$python_pycall -m pip install numpy`)
+    nargin = length(args)
+    name = mktempdir(tempdir(); prefix="jl_", cleanup=true)
+    infiles = [name * "/in" * string(idx) for idx in 1:nargin]
 
-    PyCall.py"""
-    import os
-    import sys
-    os.environ['TOOLBOX_PATH'] = $pathtobart
-    path = os.environ["TOOLBOX_PATH"] + "/python/"
-    sys.path.append(path)
-    """
+    for idx in 1:nargin
+        write_cfl(infiles[idx], args[idx])
+    end
 
-    bartWrap = pyimport("bart")
-    bartWrap.bart(0, "version")
+    outfiles = [name*"/out"*string(idx) for idx in 1:nargout]
 
-    return bartWrap.bart
+    shell_cmd = bart_path*"/bart"
+    cmd_split = split(cmd)
+
+    run(`$shell_cmd $cmd_split $infiles $outfiles`)
+
+    output = Array{ComplexF32}[]
+    for idx in 1:nargout
+        push!(output,read_cfl(outfiles[idx]))
+    end
+
+    rm(name, recursive=true)
+
+    if length(output)==0
+        return
+    elseif length(output)==1
+        return(output[1])
+    else
+        return output
+    end
+end
+
+function bart()
+    # Check bart toolbox path
+    bart_path = get_bart_path()
+    if isempty(bart_path)
+        @error "BART path not detected.\n Use : `set_bart_path(pathToBart)`"
+    end
+    shell_cmd = bart_path*"/bart"
+
+    run(Cmd(`$shell_cmd`,ignorestatus=true))
 end
 
 """
@@ -60,11 +118,16 @@ The output is an Array of ComplexF32 with the dimensions stored in a .hdr file.
 - filename:   path and filename of the cfl and hdr files, which can either be without extension, end on .cfl, or end on .hdr
 """
 function read_cfl(filename::String)
-    if filename[(end - 3):end] == ".cfl"
-        filenameBase = filename[1:(end - 4)]
-    elseif filename[(end - 3):end] == ".hdr"
-        filenameBase = filename[1:(end - 4)]
-        filename = string(filenameBase, ".cfl")
+    if length(filename) >= 4
+        if filename[(end - 3):end] == ".cfl"
+            filenameBase = filename[1:(end - 4)]
+        elseif filename[(end - 3):end] == ".hdr"
+            filenameBase = filename[1:(end - 4)]
+            filename = string(filenameBase, ".cfl")
+        else
+            filenameBase = filename
+            filename = string(filenameBase, ".cfl")
+        end
     else
         filenameBase = filename
         filename = string(filenameBase, ".cfl")
@@ -78,8 +141,8 @@ function read_cfl(filename::String)
     for i in eachindex(data)
         data[i] = read(fid, Float32) + 1im * read(fid, Float32)
     end
-
     close(fid)
+    data = reshape(data,dims...)
     return data
 end
 
@@ -113,11 +176,16 @@ The input is an Array of ComplexF32 with the dimensions stored in a .hdr file.
 
 """
 function write_cfl(filename::String, dataCfl::Array{ComplexF32})
-    if filename[(end - 3):end] == ".cfl"
-        filenameBase = filename[1:(end - 4)]
-    elseif filename[(end - 3):end] == ".hdr"
-        filenameBase = filename[1:(end - 4)]
-        filename = string(filenameBase, ".cfl")
+    if length(filename) >= 4
+        if filename[(end - 3):end] == ".cfl"
+            filenameBase = filename[1:(end - 4)]
+        elseif filename[(end - 3):end] == ".hdr"
+            filenameBase = filename[1:(end - 4)]
+            filename = string(filenameBase, ".cfl")
+        else
+            filenameBase = filename
+            filename = string(filenameBase, ".cfl")
+        end
     else
         filenameBase = filename
         filename = string(filenameBase, ".cfl")
