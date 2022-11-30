@@ -29,8 +29,9 @@ end
     else
         pathtobart = "/home/runner/work/BartIO.jl/BartIO.jl/bart"
     end
+    set_bart_path(pathtobart)
+    bart(0, "version")
 
-    bart = wrapper_bart(pathtobart)
     phant = bart(1, "phantom")
     @test size(phant) == (128, 128)
 end
