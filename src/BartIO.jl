@@ -19,12 +19,12 @@ end
 
 function get_bart_path()
         # Check bart toolbox path
-        bart_path = ENV["TOOLBOX_PATH"];
+        bart_path = ENV["TOOLBOX_PATH"]
         if isempty(bart_path)
             if isfile("/usr/local/bin/bart")
-                bart_path = "/usr/local/bin";
+                bart_path = "/usr/local/bin"
             elseif isfile("/usr/bin/bart")
-                bart_path = "/usr/bin";
+                bart_path = "/usr/bin"
         end
     end
     return bart_path
@@ -77,9 +77,9 @@ function bart(nargout::Int,cmd,args::Vararg{Array{ComplexF32}})
 
     run(`$shell_cmd $cmd_split $infiles $outfiles`)
 
-    output = Array{ComplexF32}[]
-    for idx in 1:nargout
-        push!(output,read_cfl(outfiles[idx]))
+    output = Vector{Array{ComplexF32}}(undef, length(outfiles))
+    for idx in eachindex(output, outfiles)
+        output[idx] = read_cfl(outfiles[idx])
     end
 
     rm(name, recursive=true)
@@ -134,15 +134,18 @@ function read_cfl(filename::String)
     end
 
     dims = read_recon_header(filenameBase)
+
+    # remove singleton dimensions from the end
+    n = prod(dims)
+    dims_prod = cumprod(dims)
+    dims = dims[1:searchsorted(dims_prod, n)[1]]
+
     data = Array{ComplexF32}(undef, Tuple(dims))
-
     fid = BufferedInputStream(open(filename))
-
     for i in eachindex(data)
         data[i] = read(fid, Float32) + 1im * read(fid, Float32)
     end
     close(fid)
-    data = reshape(data,dims...)
     return data
 end
 

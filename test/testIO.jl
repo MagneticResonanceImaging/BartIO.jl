@@ -29,9 +29,10 @@ end
     else
         pathtobart = "/home/runner/work/BartIO.jl/BartIO.jl/bart"
     end
+    pathtobart = "/Users/aurelien/Documents/SOFTWARE/bart"
     set_bart_path(pathtobart)
     bart(0, "version")
 
     phant = bart(1, "phantom")
-    @test size(phant) == (128, 128, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+    @test size(phant) == (128, 128)
 end
