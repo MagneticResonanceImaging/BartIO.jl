@@ -34,4 +34,12 @@ end
 
     phant = bart(1, "phantom")
     @test size(phant) == (128, 128)
+
+    # test kwargs
+    traj = bart(1,"traj -x 128 -y 256 -r")
+    k_phant = bart(1,"phantom -k",t=traj)
+    @test size(k_phant) == (1,128,256)
+
+    im_phant = bart(1,"nufft -i",traj,k_phant)
+    @test size(im_phant) == (128,128)
 end
