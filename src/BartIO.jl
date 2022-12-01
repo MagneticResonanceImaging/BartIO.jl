@@ -18,16 +18,15 @@ function set_bart_path(pathToBart::String)
 end
 
 function get_bart_path()
-        # Check bart toolbox path
-        bart_path = ENV["TOOLBOX_PATH"]
-        if isempty(bart_path)
-            if isfile("/usr/local/bin/bart")
-                bart_path = "/usr/local/bin"
-            elseif isfile("/usr/bin/bart")
-                bart_path = "/usr/bin"
-        end
+    if haskey(ENV, "TOOLBOX_PATH")
+        return ENV["TOOLBOX_PATH"]
+    elseif isfile("/usr/local/bin/bart")
+        return "/usr/local/bin"
+    elseif isfile("/usr/bin/bart")
+        return "/usr/bin"
+    else
+        return nothing
     end
-    return bart_path
 end
 
 """
