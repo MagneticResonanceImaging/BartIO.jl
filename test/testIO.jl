@@ -25,9 +25,9 @@ end
 
 @testset "BART" begin
     if Sys.isapple()
-        pathtobart = "/Users/runner/work/BartIO.jl/BartIO.jl/bart"
+        pathtobart = "/Users/runner/work/BartIO.jl/BartIO.jl/bart/bart"
     else
-        pathtobart = "/home/runner/work/BartIO.jl/BartIO.jl/bart"
+        pathtobart = "/home/runner/work/BartIO.jl/BartIO.jl/bart/bart"
     end
     set_bart_path(pathtobart)
     bart(0, "version")

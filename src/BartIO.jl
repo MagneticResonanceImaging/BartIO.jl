@@ -83,7 +83,7 @@ function bart(nargout::Int,cmd,args::Vararg{Array{ComplexF32}};kwargs...)
 
     outfiles = [name*"/out"*string(idx) for idx in 1:nargout]
 
-    shell_cmd = bart_path*"/bart"
+    shell_cmd = bart_path
     cmd_split = split(cmd)
     args_split = split(args_kw)
 
@@ -111,7 +111,7 @@ function bart()
     if isempty(bart_path)
         @error "BART path not detected.\n Use : `set_bart_path(pathToBart)`"
     end
-    shell_cmd = bart_path*"/bart"
+    shell_cmd = bart_path
 
     run(Cmd(`$shell_cmd`,ignorestatus=true))
 end
