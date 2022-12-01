@@ -24,7 +24,7 @@
 end
 
 @testset "BART" begin
-    if isempty(ENV["TOOLBOX_PATH"])
+    if !haskey(ENV, "TOOLBOX_PATH") || isempty(ENV["TOOLBOX_PATH"])
         pathtobart = Sys.isapple() ? "/Users" : "/home"
         pathtobart *= "/runner/work/BartIO.jl/BartIO.jl/bart"
         set_bart_path(pathtobart)
