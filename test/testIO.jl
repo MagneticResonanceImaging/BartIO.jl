@@ -24,12 +24,11 @@
 end
 
 @testset "BART" begin
-    if Sys.isapple()
-        pathtobart = "/Users/runner/work/BartIO.jl/BartIO.jl/bart"
-    else
-        pathtobart = "/home/runner/work/BartIO.jl/BartIO.jl/bart"
+    if isempty(ENV["TOOLBOX_PATH"])
+        pathtobart = Sys.isapple() ? "/Users" : "/home"
+        pathtobart *= "/runner/work/BartIO.jl/BartIO.jl/bart"
+        set_bart_path(pathtobart)
     end
-    set_bart_path(pathtobart)
     bart(0, "version")
 
     phant = bart(1, "phantom")
