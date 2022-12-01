@@ -48,7 +48,7 @@ end
     bart(1,"phantom -k -x128")
     ````
 """
-function bart(nargout::Int,cmd,args::Vararg{Array{ComplexF32}})
+function bart(nargout::Int,cmd,args::Vararg{Array{ComplexF32}};kwargs...)
     # Check input variables
     if isdispatchtuple(args) || isempty(cmd) nargout < 0
         @warn "Usage: bart(<nargout>,<command>, <arguments...>\n\n"
@@ -69,12 +69,24 @@ function bart(nargout::Int,cmd,args::Vararg{Array{ComplexF32}})
         write_cfl(infiles[idx], args[idx])
     end
 
+    ## kwargs
+    args_kw = ""
+
+    for idx in 1:length(kwargs)
+        key = string(keys(kwargs)[idx])
+        infiles_kw = name * "/in_" * key
+        write_cfl(infiles_kw, collect(values(kwargs))[idx])
+
+        args_kw = args_kw*"-" * key * " " * infiles_kw *" "
+    end
+
     outfiles = [name*"/out"*string(idx) for idx in 1:nargout]
 
-    shell_cmd = bart_path*"/bart"
+    shell_cmd = bart_path
     cmd_split = split(cmd)
+    args_split = split(args_kw)
 
-    run(`$shell_cmd $cmd_split $infiles $outfiles`)
+    run(`$shell_cmd $cmd_split $args_split $infiles $outfiles`)
 
     output = Vector{Array{ComplexF32}}(undef, length(outfiles))
     for idx in eachindex(output, outfiles)
@@ -98,7 +110,7 @@ function bart()
     if isempty(bart_path)
         @error "BART path not detected.\n Use : `set_bart_path(pathToBart)`"
     end
-    shell_cmd = bart_path*"/bart"
+    shell_cmd = bart_path
 
     run(Cmd(`$shell_cmd`,ignorestatus=true))
 end
