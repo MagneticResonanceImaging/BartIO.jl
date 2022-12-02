@@ -1,49 +1,46 @@
 # BartIO.jl
 
-[![Build Status](https://github.com/MagneticResonanceImaging/BartIO.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/MagneticResonanceImaging/BartIO.jl/actions/workflows/CI.yml?query=branch%3Amaster)
 [![Coverage](https://codecov.io/gh/MagneticResonanceImaging/BartIO.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/MagneticResonanceImaging/BartIO.jl)
 
-BartIO.jl is a Julia package in order to interact with the [Berkeley Advanced Reconstruction Toolbox (BART)](https://mrirecon.github.io/bart/). 
+BartIO.jl is a Julia package in order to interact with the [Berkeley Advanced Reconstruction Toolbox (BART)](https://mrirecon.github.io/bart/).
 
-This package offers the possibility to :
-- read and write cfl/hdr files used by the BART Toolbox
-- Call BART command (required to install the [BART toolbox](https://github.com/mrirecon/bart)
+This package offers the possibility to
+- read and write cfl/hdr files used by BART
+- Call BART command (requires a [BART](https://github.com/mrirecon/bart) installation
 
-## Input/Output files in BART format (.cfl + .hdr)
-To load BART data (stored in a .cfl and a .hdr header file), simply call `readcfl(filename)`, where `filename` can be either be without a filename extension, or it can include `.cfl` or `.hdr`. 
+## Input/Output files in the BART format (.cfl + .hdr)
+To load BART data (stored in a .cfl and a .hdr header file), simply call `read_cfl(filename)`, where `filename` can be either be without a filename extension, or it can include `.cfl` or `.hdr`.
 
-To write BART compatible files, call  `writecfl(filename, x)`, where `filename` can be either be without a filename extension, or it can include `.cfl` or `.hdr`. 
+To write BART compatible files, call  `write_cfl(filename, x)`, where `filename` can be either be without a filename extension, or it can include `.cfl` or `.hdr` and `x` is the data.
 
-## Calling function from BART
 
-BartIO copy the functionnality of the Python wrapper in BART : https://github.com/mrirecon/bart/blob/master/python/bart.py
+## Calling BART functions
+BartIO replicates the functionality of the [Python wrapper](https://github.com/mrirecon/bart/blob/master/python/bart.py)
+
 ### Requirements
- - The BART toolbox need to be compiled.
+BART has to be installed/compiled.
 
 ### Setup
-
-Define the path to the bart executable :
+You will have to tell BartIO.jl where to find the BART executable:
 ```julia
-    set_bart_path("/home/CODE/bart-master/bart")
+    using BartIO
+    set_bart_path("/path/to/bart")
 ```
 
-### How to use BartIO
-
-The first integer correspond to the number of output files expected. 0 -> no return
+### How to use BartIO.jl
+BART functions ca be called, e.g., by either of the to calls:
 ```julia
 bart(0,"version")
 k_phant = bart(1,"phantom -x64 -k")
 ```
 
-If you want to pass an array (needs to be in `ComplexF32` format) as args : 
-
+In the first example, the leading argument `0` indicates that `bart` will not return anything. In the second example, the leading `1` indicates that `bart` will return 1 object. For certain functions, you will have provide BART with data, which can be done in the following way:
 ```julia
 traj = bart(1,"traj -x 128 -y 256 -r")
-k_phant = bart(1,"phantom -k -t",traj)
-im_phant = bart(1,"nufft -i",traj,k_phant) 
+k_phant = bart(1,"phantom -k -t", traj)
+im_phant = bart(1,"nufft -i", traj, k_phant)
 ```
-Note if you pass multiple arguments, they are concatenated at the end of the command line. The last 2 lines are equivalent to :
-
+where `traj` and `k_phant` are arrays of `ComplexF32` (BART works with single precision). Note, if you pass multiple arguments, they are concatenated at the end of the command line. The last 2 lines are equivalent to the command line call
 ```bash
 bart phantom -k -t traj k_phant
 bart nufft -i traj k_phant im_phant
@@ -51,25 +48,21 @@ bart nufft -i traj k_phant im_phant
 
 Alternatively you can pass optional arrays with keywords
 ```julia
-k_phant = bart(1,"phantom -k",t=traj)
+k_phant = bart(1,"phantom -k", t=traj)
 ```
 
-Alternatively you can pass 
-
-
-
-If you want to know the available function in BART :
+To print all available BART functions, you can call `bart()` without arguments:
 ```julia
 bart()
 ```
 
-If you need help for the function you can use :
+If you need help for the function you can use:
 ```
 bart(0,"pics -h")
 ```
 
-### Alternatively
-BART can be called from the terminal :
+### Alternatives
+As an alternative, you can, from within Julia, manually perform a system call of BART:
 ```julia
 pathto_bart_exec="/home/CODE/bart-master/bart"
 run(`$pathto_bart_exec version`)
