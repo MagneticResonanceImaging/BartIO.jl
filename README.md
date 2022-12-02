@@ -1,6 +1,6 @@
 # BartIO.jl
 
-![][https://img.shields.io/badge/docs-latest%20release-blue.svg]][https://MagneticResonanceImaging.github.io/BartIO.jl/stable]
+![][docs-img]][docs-url]
 [![Coverage](https://codecov.io/gh/MagneticResonanceImaging/BartIO.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/MagneticResonanceImaging/BartIO.jl)
 
 BartIO.jl is a Julia package in order to interact with the [Berkeley Advanced Reconstruction Toolbox (BART)](https://mrirecon.github.io/bart/).
@@ -68,3 +68,6 @@ As an alternative, you can, from within Julia, manually perform a system call of
 pathto_bart_exec="/home/CODE/bart-master/bart"
 run(`$pathto_bart_exec version`)
 ```
+
+[docs-img]: https://img.shields.io/badge/docs-latest%20release-blue.svg
+[docs-url]: https://magneticresonanceimaging.github.io/BartIO.jl/stable/
