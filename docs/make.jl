@@ -11,9 +11,8 @@ makedocs(
     doctest = false,
     sitename = "BartIO.jl",
     modules  = [BartIO],
-    authors="Jakob Asslaender <jakob.asslaender@nyumc.org> and contributors",
+    authors="Jakob Asslaender <jakob.asslaender@nyumc.org> and Aurélien Trotier <a.trotier@gmail.com>",
     repo="https://github.com/MagneticResonanceImaging/BartIO.jl/blob/{commit}{path}#{line}",
-    sitename="MRIgeneralizedBloch.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
         canonical="https://github.com/MagneticResonanceImaging/BartIO.jl",
