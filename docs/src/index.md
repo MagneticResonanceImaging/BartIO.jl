@@ -3,13 +3,12 @@ BartIO.jl is a Julia package in order to interact with the [Berkeley Advanced Re
 
 This package offers the possibility to
 - read and write cfl/hdr files used by BART
-- Call BART command (requires a [BART](https://github.com/mrirecon/bart) installation
+- Call BART command (requires a [BART](https://github.com/mrirecon/bart) installation)
 
-## Input/Output files in the BART format (.cfl + .hdr)
+## Read & write files
 To load BART data (stored in a .cfl and a .hdr header file), simply call `read_cfl(filename)`, where `filename` can be either be without a filename extension, or it can include `.cfl` or `.hdr`.
 
 To write BART compatible files, call  `write_cfl(filename, x)`, where `filename` can be either be without a filename extension, or it can include `.cfl` or `.hdr` and `x` is the data.
-
 
 ## Calling BART functions
 BartIO replicates the functionality of the [Python wrapper](https://github.com/mrirecon/bart/blob/master/python/bart.py)
