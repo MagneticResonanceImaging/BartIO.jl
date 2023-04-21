@@ -15,9 +15,9 @@ jobs:
         os:
           - macos-11
         arch:
-          - x64          
+          - x64
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Build MacPorts
         run: |
               git clone https://github.com/macports/macports-base
@@ -26,22 +26,22 @@ jobs:
               ./configure
               make -j$(sysctl -n hw.activecpu)
       - name: Install MacPorts
-        run:  |     
-              cd macports-base 
+        run:  |
+              cd macports-base
               sudo make install
               /opt/local/bin/port version
               sudo /opt/local/bin/port -v -N selfupdate
       - name: Install BART dependency
         run: |
-              sudo /opt/local/bin/port install -N fftw-3-single 
+              sudo /opt/local/bin/port install -N fftw-3-single
               sudo /opt/local/bin/port install -N gcc10
-              sudo /opt/local/bin/port install -N libpng 
+              sudo /opt/local/bin/port install -N libpng
               sudo /opt/local/bin/port install -N openblas
               sudo /opt/local/bin/port -q contents gcc10 | grep -E '/s?bin/'
               sudo /opt/local/bin/port select --set gcc mp-gcc10
               brew install libomp
       - name: Install BART
-        run: |        
+        run: |
               git clone https://github.com/mrirecon/bart
               cd bart
               git checkout 7aeae14c58b4358fa9e84900b65a38add258607c
@@ -54,6 +54,6 @@ jobs:
               ./bart version
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v3
         with:
           file: lcov.info
