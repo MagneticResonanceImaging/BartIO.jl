@@ -151,12 +151,13 @@ function read_cfl(filename::String)
     dims_prod = cumprod(dims)
     dims = dims[1:searchsorted(dims_prod, n)[1]]
 
-    data = Array{ComplexF32}(undef, Tuple(dims))
     fid = BufferedInputStream(open(filename))
-    for i in eachindex(data)
-        data[i] = read(fid, Float32) + 1im * read(fid, Float32)
-    end
+    data = read(fid)
     close(fid)
+
+    data = reinterpret(ComplexF32, data)
+    data = reshape(Array(data), Tuple(dims))
+
     return data
 end
 
