@@ -1,11 +1,20 @@
 name = "BartIO"
 uuid = "8b90e6a2-6e4d-4906-89ae-b5f72ca4a65b"
 authors = ["Jakob Asslaender <jakob.asslaender@nyumc.org>", "Aurélien Trotier <a.trotier@gmail.com>"]
-version = "0.3.2"
+version = "0.4.0"
 
 [deps]
+BART_jll = "1ef2e390-54b6-5c5f-a4a9-f75f50f9aa24"
 BufferedStreams = "e1450e63-4bb3-523b-b2a4-4ffa8c0fd77d"
 
+[weakdeps]
+BART_CUDA_jll = "529cfbab-ec23-5c6e-ab3e-ec2d1574d9c1"
+
+[extensions]
+BartIOCUDAExt = "BART_CUDA_jll"
+
 [compat]
-julia = "1.6"
+BART_CUDA_jll = "1.0"
+BART_jll = "1.0"
 BufferedStreams = "1"
+julia = "1.10"

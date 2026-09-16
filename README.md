@@ -7,7 +7,7 @@ BartIO.jl is a Julia package in order to interact with the [Berkeley Advanced Re
 
 This package offers the possibility to
 - read and write cfl/hdr files used by BART
-- Call BART command (requires a [BART](https://github.com/mrirecon/bart) installation
+- Call BART commands using the CPU executable provided by `BART_jll`
 
 ## Input/Output files in the BART format (.cfl + .hdr)
 To load BART data (stored in a .cfl and a .hdr header file), simply call `read_cfl(filename)`, where `filename` can be either be without a filename extension, or it can include `.cfl` or `.hdr`.
@@ -19,14 +19,28 @@ To write BART compatible files, call  `write_cfl(filename, x)`, where `filename`
 BartIO replicates the functionality of the [Python wrapper](https://github.com/mrirecon/bart/blob/master/python/bart.py)
 
 ### Requirements
-BART has to be installed/compiled.
+Julia 1.10+. `BART_jll` bundles CPU-only BART 1 on macOS and Linux (glibc ≥2.34).
+For bundled BART on Windows, use Julia in WSL2; musl and RISC-V are unsupported.
 
 ### Setup
-You will have to tell BartIO.jl where to find the BART executable:
+No separate BART installation or path configuration is needed:
 ```julia
     using BartIO
-    set_bart_path("/path/to/bart")
+    bart(0, "version")
 ```
+
+`set_bart_path("/path/to/bart")` overrides the executable; `set_bart_path("")` restores the bundled one.
+
+### Optional CUDA support
+
+Install and import `BART_CUDA_jll` to opt in; no separate CUDA toolkit is needed.
+
+```julia
+import BART_CUDA_jll
+reconstruction = bart(1, "pics -g -R T:3:0:0.002", kspace, sensitivities)
+```
+
+See the [documentation](docs/src/index.md#optional-cuda-support) for device selection and CUDA runtime preferences.
 
 ### How to use BartIO.jl
 BART functions ca be called, e.g., by either of the to calls:
