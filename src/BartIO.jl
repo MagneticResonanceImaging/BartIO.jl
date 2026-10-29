@@ -3,9 +3,9 @@ module BartIO
 using BufferedStreams
 import BART_jll
 
-struct BARTCPUBackend end
-struct BARTCUDABackend end
-const BACKEND = Ref{Union{BARTCPUBackend,BARTCUDABackend}}(BARTCPUBackend())
+abstract type BARTBackend end
+struct BARTCPUBackend <: BARTBackend end
+const BACKEND = Ref{BARTBackend}(BARTCPUBackend())
 
 # Exported functions
 export read_cfl, write_cfl, read_recon_header
@@ -33,40 +33,6 @@ end
 _bart_cmd(::BARTCPUBackend) = BART_jll.bart()
 
 get_bart_path() = first(_bart_cmd().exec)
-
-_require_cuda_backend() = error("GPU device management requires the CUDA backend (import BART_CUDA_jll).")
-devices(::BARTCPUBackend) = _require_cuda_backend()
-device(::BARTCPUBackend) = _require_cuda_backend()
-device!(::BARTCPUBackend, id) = _require_cuda_backend()
-
-"""
-    BartIO.devices()
-
-List CUDA devices visible to the bundled BART executable as `(id, name, uuid)`
-named tuples. IDs are zero-based and respect `CUDA_VISIBLE_DEVICES` and
-`CUDA_DEVICE_ORDER`. Requires `import BART_CUDA_jll`.
-"""
-devices() = devices(BACKEND[])
-
-"""
-    BartIO.device()
-
-Return the selected device descriptor, or `nothing` for BART's automatic selection.
-This is BartIO's selection, not Julia's current CUDA device.
-"""
-device() = device(BACKEND[])
-
-"""
-    BartIO.device!(id::Integer)
-    BartIO.device!(nothing)
-
-Select a zero-based ID from `BartIO.devices()` for subsequent bundled CUDA BART
-commands, or restore automatic selection with `nothing`. Selection is session-local
-and only changes the BART subprocess environment, not Julia's CUDA device or `ENV`.
-Explicit `set_bart_path` overrides bypass this selection. GPU execution still
-requires the BART command's GPU flag (for example, `pics -g`).
-"""
-device!(id) = device!(BACKEND[], id)
 
 """
     bart = wrapper_bart(pathtobart::String)

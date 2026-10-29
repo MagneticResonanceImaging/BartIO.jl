@@ -7,10 +7,8 @@
         sensitivity = ones(ComplexF32, size(image))
         shift = 2λ / width
         expected = shift .+ (1 - 2shift) .* image
-        for gpu in ("CUDA" in ARGS ? ("", "-g") : ("",))
-            reconstructed = bart(1, "pics $gpu -w 1 -m -R T:3:0:$λ -i 200", kspace, sensitivity; p=sensitivity)
-            # Allow Float32 FFT/ADMM rounding: 32 eps in relative image norm, well below the TV shift.
-            @test reconstructed ≈ expected rtol=32eps(Float32)
-        end
+        reconstructed = bart(1, "pics -w 1 -m -R T:3:0:$λ -i 200", kspace, sensitivity; p=sensitivity)
+        # Allow Float32 FFT/ADMM rounding: 32 eps in relative image norm, well below the TV shift.
+        @test reconstructed ≈ expected rtol=32eps(Float32)
     end
 end

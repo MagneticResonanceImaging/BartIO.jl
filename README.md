@@ -31,17 +31,6 @@ No separate BART installation or path configuration is needed:
 
 `set_bart_path("/path/to/bart")` overrides the executable; `set_bart_path("")` restores the bundled one.
 
-### Optional CUDA support
-
-Install and import `BART_CUDA_jll` to opt in; no separate CUDA toolkit is needed.
-
-```julia
-import BART_CUDA_jll
-reconstruction = bart(1, "pics -g -R T:3:0:0.002", kspace, sensitivities)
-```
-
-See the [documentation](docs/src/index.md#optional-cuda-support) for device selection and CUDA runtime preferences.
-
 ### How to use BartIO.jl
 BART functions ca be called, e.g., by either of the to calls:
 ```julia
