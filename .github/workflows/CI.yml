@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         version: ['1.10', '1']
-        os: [ubuntu-24.04, ubuntu-24.04-arm, macos-15-intel, macos-15]
+        os: [ubuntu-latest, macos-latest]
     env:
       JULIA_NUM_THREADS: auto
     steps:
@@ -28,8 +28,8 @@ jobs:
       - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
-        if: matrix.os == 'ubuntu-24.04' && matrix.version == '1'
+        if: matrix.os == 'ubuntu-latest' && matrix.version == '1'
       - uses: codecov/codecov-action@v5
-        if: matrix.os == 'ubuntu-24.04' && matrix.version == '1'
+        if: matrix.os == 'ubuntu-latest' && matrix.version == '1'
         with:
           files: lcov.info
