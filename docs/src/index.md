@@ -14,7 +14,7 @@ To write BART compatible files, call  `write_cfl(filename, x)`, where `filename`
 BartIO replicates the functionality of the [Python wrapper](https://github.com/mrirecon/bart/blob/master/python/bart.py)
 
 ### Requirements
-Julia 1.10+. `BART_jll` bundles CPU-only BART 1 on macOS and Linux (glibc ≥2.34).
+Julia 1.10+. `BART_jll` bundles CPU-only BART 1 on macOS and Linux (glibc).
 For bundled BART on Windows, use Julia in WSL2; musl and RISC-V are unsupported.
 
 ### Setup
