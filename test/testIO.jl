@@ -24,21 +24,18 @@
 end
 
 @testset "BART" begin
-    if !haskey(ENV, "TOOLBOX_PATH") || isempty(ENV["TOOLBOX_PATH"])
-        pathtobart = Sys.isapple() ? "/Users" : "/home"
-        pathtobart *= "/runner/work/BartIO.jl/BartIO.jl/bart/bart"
-        set_bart_path(pathtobart)
+    withenv("TOOLBOX_PATH" => nothing) do
+        bart(0, "version")
+
+        phant = bart(1, "phantom")
+        @test size(phant) == (128, 128)
+
+        # test kwargs
+        traj = bart(1,"traj -x 128 -y 256 -r")
+        k_phant = bart(1,"phantom -k",t=traj)
+        @test size(k_phant) == (1,128,256)
+
+        im_phant = bart(1,"nufft -i",traj,k_phant)
+        @test size(im_phant) == (128,128)
     end
-    bart(0, "version")
-
-    phant = bart(1, "phantom")
-    @test size(phant) == (128, 128)
-
-    # test kwargs
-    traj = bart(1,"traj -x 128 -y 256 -r")
-    k_phant = bart(1,"phantom -k",t=traj)
-    @test size(k_phant) == (1,128,256)
-
-    im_phant = bart(1,"nufft -i",traj,k_phant)
-    @test size(im_phant) == (128,128)
 end

@@ -1,6 +1,11 @@
 module BartIO
 
 using BufferedStreams
+import BART_jll
+
+abstract type BARTBackend end
+struct BARTCPUBackend <: BARTBackend end
+const BACKEND = Ref{BARTBackend}(BARTCPUBackend())
 
 # Exported functions
 export read_cfl, write_cfl, read_recon_header
@@ -10,24 +15,24 @@ export set_bart_path, get_bart_path, bart
 """
     set_bart_path(pathToBart::String)
 
-Define the path to the BART toolbox (store in ENV["TOOLBOX_PATH"])
+Override the bundled executable with a BART executable at `pathToBart`.
+The override is stored in `ENV["TOOLBOX_PATH"]`; use `""` to restore the selected
+bundled executable.
 """
 function set_bart_path(pathToBart::String)
     ENV["TOOLBOX_PATH"]=pathToBart
     return pathToBart
 end
 
-function get_bart_path()
-    if haskey(ENV, "TOOLBOX_PATH")
-        return ENV["TOOLBOX_PATH"]
-    elseif isfile("/usr/local/bin/bart")
-        return "/usr/local/bin"
-    elseif isfile("/usr/bin/bart")
-        return "/usr/bin"
-    else
-        return nothing
-    end
+function _bart_cmd()
+    path = get(ENV, "TOOLBOX_PATH", "")
+    isempty(path) || return Cmd([path])
+    return _bart_cmd(BACKEND[])
 end
+
+_bart_cmd(::BARTCPUBackend) = BART_jll.bart()
+
+get_bart_path() = first(_bart_cmd().exec)
 
 """
     bart = wrapper_bart(pathtobart::String)
@@ -55,12 +60,6 @@ function bart(nargout::Int,cmd,args::Vararg{Array{ComplexF32}};kwargs...)
         return nothing
     end
 
-    # Check bart toolbox path
-    bart_path = get_bart_path()
-    if isempty(bart_path)
-        @error "BART path not detected.\n Use : `set_bart_path(pathToBart)`"
-    end
-
     nargin = length(args)
     name = mktempdir(tempdir(); prefix="jl_", cleanup=true)
     infiles = [name * "/in" * string(idx) for idx in 1:nargin]
@@ -82,7 +81,7 @@ function bart(nargout::Int,cmd,args::Vararg{Array{ComplexF32}};kwargs...)
 
     outfiles = [name*"/out"*string(idx) for idx in 1:nargout]
 
-    shell_cmd = bart_path
+    shell_cmd = _bart_cmd()
     cmd_split = split(cmd)
     args_split = split(args_kw)
 
@@ -105,12 +104,7 @@ function bart(nargout::Int,cmd,args::Vararg{Array{ComplexF32}};kwargs...)
 end
 
 function bart()
-    # Check bart toolbox path
-    bart_path = get_bart_path()
-    if isempty(bart_path)
-        @error "BART path not detected.\n Use : `set_bart_path(pathToBart)`"
-    end
-    shell_cmd = bart_path
+    shell_cmd = _bart_cmd()
 
     run(Cmd(`$shell_cmd`,ignorestatus=true))
 end
